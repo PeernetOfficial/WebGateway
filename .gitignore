@@ -1,0 +1,5 @@
+*.exe
+*debug_bin
+*.yaml
+.vscode
+data/
