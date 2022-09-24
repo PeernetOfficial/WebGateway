@@ -24,6 +24,10 @@ var config struct {
 	WebCertificateKey  string   `yaml:"WebCertificateKey"`  // This is the private key.
 	WebTimeoutRead     string   `yaml:"WebTimeoutRead"`     // The maximum duration for reading the entire request, including the body.
 	WebTimeoutWrite    string   `yaml:"WebTimeoutWrite"`    // The maximum duration before timing out writes of the response. This includes processing time and is therefore the max time any HTTP function may take.
+	Redirect80         string   `yaml:"Redirect80"`         // Redirect 80 listen address. Empty if not used.
+
+	// WebFiles is the directory holding all HTML and other files to be served by the server
+	WebFiles string `yaml:"WebFiles"`
 }
 
 func main() {
@@ -49,7 +53,9 @@ func main() {
 
 	backend.Stdout.Subscribe(os.Stdout)
 
-	//startWebGateway(backend, )
+	go startWebGateway(backend)
 
 	backend.Connect()
+
+	select {}
 }
