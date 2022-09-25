@@ -8,18 +8,24 @@ package main
 
 import (
 	"crypto/tls"
+	"encoding/hex"
+	"fmt"
+	"io"
 	"net"
 	"net/http"
+	"path"
+	"strings"
 	"time"
 
 	"github.com/PeernetOfficial/core"
+	"github.com/PeernetOfficial/core/btcec"
+	"github.com/PeernetOfficial/core/webapi"
 	"github.com/gorilla/mux"
 )
 
 func startWebGateway(backend *core.Backend) {
 	router := mux.NewRouter()
-	router.PathPrefix("/").Handler(http.HandlerFunc(webGatewayHandler)).Methods("GET")
-	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir(config.WebFiles)))).Methods("GET")
+	router.PathPrefix("/").Handler(http.HandlerFunc(webGatewayHandler(backend))).Methods("GET")
 
 	for _, listen := range config.WebListen {
 		go startWebServer(backend, listen, config.WebUseSSL, config.WebCertificateFile, config.WebCertificateKey, router, "Web Listen", parseDuration(config.WebTimeoutRead), parseDuration(config.WebTimeoutWrite))
@@ -77,6 +83,122 @@ func webRedirect80(listen80 string) {
 	http.ListenAndServe(net.JoinHostPort(listen80, "80"), http.HandlerFunc(redirect))
 }
 
-func webGatewayHandler(w http.ResponseWriter, r *http.Request) {
-	http.Error(w, "404 page not found", http.StatusNotFound)
+func webGatewayHandler(backend *core.Backend) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// For security and simplicity reasons, below paths are hard-coded.
+		// Using arbitrary user input is an avoidable security risk here.
+		switch r.URL.Path {
+		case "/", "/index.html":
+			http.ServeFile(w, r, path.Join(config.WebFiles, "index.html"))
+			return
+		case "/favicon.ico":
+			http.ServeFile(w, r, path.Join(config.WebFiles, "favicon.ico"))
+			return
+		}
+
+		// Assume it is in the format "/[blockchain public key]/[file hash]".
+
+		// Remove slash prefix and suffix.
+		pathA := strings.TrimPrefix(strings.TrimSuffix(r.URL.Path, "/"), "/")
+
+		pathParts := strings.Split(pathA, "/")
+		if len(pathParts) != 1 && len(pathParts) != 2 {
+			http.Error(w, "404 not found", http.StatusNotFound)
+			return
+		}
+
+		// Default timeout for connection is 10 seconds. This will be an optional parameter in the future.
+		timeout := 10 * time.Second
+
+		// First part must be the public key as peer ID or node ID, hex encoded. Form: "/[blockchain public key]"
+		nodeIDA := pathParts[0]
+		nodeID, validNodeID := webapi.DecodeBlake3Hash(nodeIDA)
+		publicKey, errPK := core.PublicKeyFromPeerID(nodeIDA)
+
+		if !validNodeID && errPK != nil {
+			http.Error(w, "404 not found", http.StatusNotFound)
+			return
+		}
+		if !validNodeID {
+			nodeID = []byte{}
+		}
+
+		// Check if a blockchain is requested.
+		// The format must be "/[blockchain public key]". Part 1 = hex encoding, peer ID or node ID.
+		if len(pathParts) == 1 {
+			webGatewayShowBlockchain(backend, w, r, nodeID, publicKey, timeout)
+		} else if len(pathParts) == 2 {
+			// Check if a specific file on a specific blockchain is requested.
+			// The format must be "/[blockchain public key]/[file hash]". Part 2 = hex encoding, blake3 hash.
+			hash, valid := webapi.DecodeBlake3Hash(pathParts[1])
+			if !valid {
+				http.Error(w, "Invalid file hash.", http.StatusBadRequest)
+				return
+			}
+
+			webGatewayShowFile(backend, w, r, nodeID, publicKey, hash, timeout)
+		}
+
+		// Check if an arbitrary directory on a specific blockchain is requested.
+		// Directories are identified by name.
+		// TODO
+
+		//http.Error(w, "test handler", http.StatusOK)
+	}
+}
+
+func webGatewayShowBlockchain(backend *core.Backend, w http.ResponseWriter, r *http.Request, nodeID []byte, publicKey *btcec.PublicKey, timeout time.Duration) {
+	var err error
+	var peer *core.PeerInfo
+	if len(nodeID) != 0 {
+		peer, err = webapi.PeerConnectNode(backend, nodeID, timeout)
+	} else {
+		peer, err = webapi.PeerConnectPublicKey(backend, publicKey, timeout)
+	}
+	if err != nil {
+		http.Error(w, "Could not connect to remote peer. 😢", http.StatusNotFound)
+		return
+	}
+
+	// connection established!
+	text := fmt.Sprintf("Peer %s blockchain height %d version %d\nUser Agent: %s\n", hex.EncodeToString(peer.NodeID), peer.BlockchainHeight, peer.BlockchainVersion, peer.UserAgent)
+	http.Error(w, text, http.StatusOK)
+}
+
+func webGatewayShowFile(backend *core.Backend, w http.ResponseWriter, r *http.Request, nodeID []byte, publicKey *btcec.PublicKey, fileHash []byte, timeout time.Duration) {
+	var err error
+	var peer *core.PeerInfo
+	if len(nodeID) != 0 {
+		peer, err = webapi.PeerConnectNode(backend, nodeID, timeout)
+	} else {
+		peer, err = webapi.PeerConnectPublicKey(backend, publicKey, timeout)
+	}
+	if err != nil {
+		http.Error(w, "Could not connect to remote peer. 😢", http.StatusNotFound)
+		return
+	}
+
+	// Todo: Try webapi.serveFileFromWarehouse
+
+	// Todo: Cache.
+
+	offset := 0
+	limit := 0
+
+	// start the reader
+	//reader, fileSize, transferSize, err := webapi.FileStartReader(peer, fileHash, uint64(offset), uint64(limit), r.Context().Done())
+	reader, _, transferSize, err := webapi.FileStartReader(peer, fileHash, uint64(offset), uint64(limit), r.Context().Done())
+	if reader != nil {
+		defer reader.Close()
+	}
+	if err != nil || reader == nil {
+		http.Error(w, "File not found.", http.StatusNotFound)
+		return
+	}
+
+	// set the right headers
+	//webapi.setContentLengthRangeHeader(w, uint64(offset), transferSize, fileSize, ranges)
+
+	// Start sending the data!
+	io.Copy(w, io.LimitReader(reader, int64(transferSize)))
 }

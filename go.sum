@@ -1,3 +1,5 @@
+github.com/IncSW/geoip2 v0.1.2 h1:v7iAyDiNZjHES45P1JPM3SMvkw0VNeJtz0XSVxkRwOY=
+github.com/IncSW/geoip2 v0.1.2/go.mod h1:adcasR40vXiUBjtzdaTTKL/6wSf+fgO4M8Gve/XzPUk=
 github.com/PeernetOfficial/core v0.0.0-20220601150942-0e3e8dc9885c h1:n+NGYHQulohXk//v2LYOgCVsbL9h5COupt+2ZhbtGqs=
 github.com/PeernetOfficial/core v0.0.0-20220601150942-0e3e8dc9885c/go.mod h1:Ek4/3aKyKnA/KDSNe/yeorX5TA0fckpN7etZ+nCelGc=
 github.com/akrylysov/pogreb v0.10.1 h1:FqlR8VR7uCbJdfUob916tPM+idpKgeESDXOA1K0DK4w=
@@ -8,6 +10,8 @@ github.com/google/uuid v1.3.0 h1:t6JiXgmwXMjEs8VusXIJk2BXHsn+wx8BZdTaoZ5fu7I=
 github.com/google/uuid v1.3.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/gorilla/mux v1.8.0 h1:i40aqfkR1h2SlN9hojwV5ZA91wcXFOvkdNIeFDP5koI=
 github.com/gorilla/mux v1.8.0/go.mod h1:DVbg23sWSpFRCP0SfiEN6jmj59UnW/n46BH5rLB71So=
+github.com/gorilla/websocket v1.5.0 h1:PPwGk2jz7EePpoHN/+ClbZu8SPxiqlu12wZP/3sWmnc=
+github.com/gorilla/websocket v1.5.0/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/klauspost/cpuid/v2 v2.0.9/go.mod h1:FInQzS24/EEf25PyTYn52gqo7WaD8xa0213Md/qVLRg=
 github.com/klauspost/cpuid/v2 v2.0.12 h1:p9dKCg8i4gmOxtv35DvrYoWqYzQrvEVdjQ762Y0OqZE=
 github.com/klauspost/cpuid/v2 v2.0.12/go.mod h1:g2LTdtYhdyuGPqyWyv7qRAmj1WBqxuObKfj5c0PQa7c=
