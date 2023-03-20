@@ -111,12 +111,13 @@ func webGatewayHandler(backend *core.Backend) func(w http.ResponseWriter, r *htt
 		// Assume it is in the format "/[blockchain public key]/[file hash]".
 
 		// Remove slash prefix and suffix.
+		fmt.Println(r.URL.Path)
 		pathA := strings.TrimPrefix(strings.TrimSuffix(r.URL.Path, "/"), "/")
 
 		pathParts := strings.Split(pathA, "/")
 		if len(pathParts) != 1 && len(pathParts) != 2 {
 			http.Error(w, "404 not found", http.StatusNotFound)
-			//return
+			return
 		}
 
 		// Default timeout for connection is 10 seconds. This will be an optional parameter in the future.
