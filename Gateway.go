@@ -128,7 +128,7 @@ func webGatewayHandler(backend *core.Backend) func(w http.ResponseWriter, r *htt
         publicKey, errPK := core.PublicKeyFromPeerID(nodeIDA)
 
         if !validNodeID && errPK != nil {
-            http.Error(w, "404 not found", http.StatusNotFound)
+            http.Error(w, "Invalid NodeID", http.StatusBadRequest)
             return
         }
         if !validNodeID {
