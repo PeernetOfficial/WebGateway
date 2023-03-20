@@ -115,7 +115,7 @@ func webGatewayHandler(backend *core.Backend) func(w http.ResponseWriter, r *htt
 		pathA := strings.TrimPrefix(strings.TrimSuffix(r.URL.Path, "/"), "/")
 
 		pathParts := strings.Split(pathA, "/")
-		fmt.Println(pathParts)
+		fmt.Println(len(pathParts))
 		if len(pathParts) != 1 && len(pathParts) != 2 {
 			http.Error(w, "404 not found", http.StatusNotFound)
 			return
