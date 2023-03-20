@@ -26,7 +26,7 @@
 								<a href="#" style="color:#3ac4e2" id="Download">Download from the browser</a>
 								<br>
 								<br>
-								<a href="https://peernet.org" class="btn btn-white btn-outline-white">Download from Peernet Browser</a>
+								<a href="https://peernet.org" class="btn btn-white btn-outline-white">Instantly stream it with the Peernet Browser</a>
 							</div>
 						</div>
 						<div class="login-wrap p-4 p-lg-5">
@@ -90,15 +90,17 @@
         var FileSize = document.getElementById('FileSize');
         var FileHash = document.getElementById('FileHash');
         var Download = document.getElementById('Download');
+        var FileName = document.getElementById('FileName');
 
         var promise1 = new Promise(function(resolve, reject) {
             var xhr = new XMLHttpRequest(),
                 method = "GET",
-                url = window.location + "?metadata=true";
+                url = window.location + "&metadata=true";
 
             xhr.open(method, url, true);
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4 && xhr.status === 200) {
+                    console.log(xhr.responseText)
                     resolve(JSON.parse(xhr.responseText));
                 }
             };
@@ -108,7 +110,8 @@
         promise1.then(function(value) {
             FileSize.innerText = value.Size + " Bytes";
             FileHash.innerText = value.Hash;
-            Download.href = window.location + "?download=true"
+            Download.href = window.location + "&download=true"
+            FileName.innerText = value.Name
         });
 
 
