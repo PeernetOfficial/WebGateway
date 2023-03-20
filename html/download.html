@@ -10,7 +10,7 @@
 
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 
-	<link rel="stylesheet" href="static/css/style.css">
+	<link rel="stylesheet" href="/static/css/style.css">
 
 </head>
 
@@ -23,10 +23,10 @@
 						<div class="text-wrap p-4 p-lg-5 text-center d-flex align-items-center order-md-last">
 							<div class="text w-100">
 								<h2 class="Peernetblue">Download this file from Peernet</h2>
-								<a href="#" style="color:#3ac4e2">Download from the browser</a>
+								<a href="#" style="color:#3ac4e2" id="Download">Download from the browser</a>
 								<br>
 								<br>
-								<a href="#" class="btn btn-white btn-outline-white">Download from Peernet Browser</a>
+								<a href="https://peernet.org" class="btn btn-white btn-outline-white">Download from Peernet Browser</a>
 							</div>
 						</div>
 						<div class="login-wrap p-4 p-lg-5">
@@ -41,15 +41,15 @@
 							<form action="#" class="signin-form">
 								<div class="form-group mb-3">
 									<label class="label" for="name">File Name:</label>
-									<p>Test.txt</p>
+									<p id="FileName">Test.txt</p>
 								</div>
 								<div class="form-group mb-3">
 									<label class="label" for="name">File Size:</label>
-									<p>15 Mb</p>
+									<p id="FileSize">15 Mb</p>
 								</div>
 								<div class="form-group mb-3">
 									<label class="label" for="name">File Hash:</label>
-									<p>blablablablabla</p>
+									<p id="FileHash">blablablablabla</p>
 								</div>
 								<!-- <div class="form-group mb-3">
 									<label class="label" for="password">Password</label>
@@ -78,10 +78,41 @@
 		</div>
 	</section>
 
-	<script src="static/js/jquery.min.js"></script>
-	<script src="static/js/popper.js"></script>
-	<script src="static/js/bootstrap.min.js"></script>
-	<script src="static/js/main.js"></script>
+	<script src="/static/js/jquery.min.js"></script>
+	<script src="/static/js/popper.js"></script>
+	<script src="/static/js/bootstrap.min.js"></script>
+	<script src="/static/js/main.js"></script>
+
+    <script>
+        // call a certain api and parse JSON and populate the
+        // the data in the HTML page
+
+        var FileSize = document.getElementById('FileSize');
+        var FileHash = document.getElementById('FileHash');
+        var Download = document.getElementById('Download');
+
+        var promise1 = new Promise(function(resolve, reject) {
+            var xhr = new XMLHttpRequest(),
+                method = "GET",
+                url = window.location + "?metadata=true";
+
+            xhr.open(method, url, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    resolve(JSON.parse(xhr.responseText));
+                }
+            };
+            xhr.send();
+        });
+
+        promise1.then(function(value) {
+            FileSize.innerText = value.Size + " Bytes";
+            FileHash.innerText = value.Hash;
+            Download.href = window.location + "?download=true"
+        });
+
+
+    </script>
 
 </body>
 
