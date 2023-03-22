@@ -22,12 +22,24 @@
 					<div class="wrap d-md-flex">
 						<div class="text-wrap p-4 p-lg-5 text-center d-flex align-items-center order-md-last">
 							<div class="text w-100">
+                                <video controls crossorigin playsinline poster="https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-HD.jpg" style="width:100%; visibility: hidden" id="video">
+                                    <source src="https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-576p.mp4" id="video-player">
+                                    <!-- Fallback for browsers that don't support the <video> element -->
+                                    <a href="" id="VideoDownload" download>Download</a>
+                                </video>
+                                <!-- Display other files in a iframe -->
+                                <div id="other-files">
+                                    <object data="" style="overflow:auto;width: 100%; height: 40vh;" id="data">
+                                    </object>
+                                </div>
+                                <br>
 								<h2 class="Peernetblue">Download this file from Peernet</h2>
 								<a href="#" style="color:#3ac4e2" id="Download">Download from the browser</a>
 								<br>
 								<br>
 								<a href="https://peernet.org" class="btn btn-white btn-outline-white">Instantly stream it with the Peernet Browser</a>
 							</div>
+                            <!-- Video player code snippet -->
 						</div>
 						<div class="login-wrap p-4 p-lg-5">
 							<div class="d-flex">
@@ -41,15 +53,15 @@
 							<form action="#" class="signin-form">
 								<div class="form-group mb-3">
 									<label class="label" for="name">File Name:</label>
-									<p id="FileName">Test.txt</p>
+									<p id="FileName"></p>
 								</div>
 								<div class="form-group mb-3">
 									<label class="label" for="name">File Size:</label>
-									<p id="FileSize">15 Mb</p>
+									<p id="FileSize"></p>
 								</div>
 								<div class="form-group mb-3">
 									<label class="label" for="name">File Hash:</label>
-									<p id="FileHash">blablablablabla</p>
+									<p id="FileHash"></p>
 								</div>
 								<!-- <div class="form-group mb-3">
 									<label class="label" for="password">Password</label>
@@ -91,6 +103,10 @@
         var FileHash = document.getElementById('FileHash');
         var Download = document.getElementById('Download');
         var FileName = document.getElementById('FileName');
+        var Video = document.getElementById('video');
+        var VideoPlayer = document.getElementById('video-player')
+        var OtherFiles = document.getElementById('other-files')
+        var Data = document.getElementById('data')
 
         var promise1 = new Promise(function(resolve, reject) {
             var xhr = new XMLHttpRequest(),
@@ -108,11 +124,37 @@
         });
 
         promise1.then(function(value) {
+            // Actions performed once a response is provided
             FileSize.innerText = value.Size + " Bytes";
             FileHash.innerText = value.Hash;
             Download.href = window.location + "&download=true"
             FileName.innerText = value.Name
+
+            // Get file extension
+            var fileExt = value.Name.split('.').pop();
+
+            if (fileExt === "mp4") {
+                // Ensure browser is not Safari
+                if(navigator.userAgent.indexOf("Safari") === -1)
+                {
+                    // Play the video if the condition is true
+                    PlayVideo()
+                }
+                // Remove the div
+                // for displaying other files
+                OtherFiles.remove()
+            } else {
+                Video.remove()
+                Data.data = window.location + "&play=true"
+            }
         });
+
+        // This function plays the video on the video plane
+        function PlayVideo() {
+            // make the video div visible
+            Video.style.visibility = 'visible'
+            VideoPlayer.href= window.location + "&play=true"
+        }
 
 
     </script>

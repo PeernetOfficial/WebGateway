@@ -220,6 +220,7 @@ func webGatewayShowFile(backend *core.Backend, w http.ResponseWriter, r *http.Re
 	download := r.URL.Query().Get("download")
 	metadata := r.URL.Query().Get("metadata")
 	filename := r.URL.Query().Get("filename")
+	play := r.URL.Query().Get("play")
 
 	//// look up file based on NodeID
 	//var resultMap map[uuid.UUID]*search.SearchIndexRecord
@@ -272,6 +273,9 @@ func webGatewayShowFile(backend *core.Backend, w http.ResponseWriter, r *http.Re
 
 		webapi.EncodeJSON(backend, w, r, responseMetadata)
 		return
+	} else if play == "true" {
+		// Plays / previews the video
+		io.Copy(w, io.LimitReader(reader, int64(transferSize)))
 	}
 
 	// set the right headers
