@@ -133,6 +133,11 @@
             // Get file extension
             var fileExt = value.Name.split('.').pop();
 
+            // To make sure a file is less than 100 mb to preview and is not a video file.
+            if (value.Size > 1000000 &&  fileExt != "mp4" && fileExt != "mov" && fileExt != "wmv" && fileExt != "webm" && fileExt != "mpeg-2") {
+                OtherFiles.remove()
+            }
+
             if (fileExt === "mp4") {
                 // Ensure browser is not Safari
                 if(navigator.userAgent.indexOf("Safari") === -1)
