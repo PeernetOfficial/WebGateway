@@ -2,4 +2,7 @@
 *debug_bin
 *.yaml
 .vscode
+./Cmd
+.DS_Store
+.idea/
 data/

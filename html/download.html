@@ -22,8 +22,8 @@
 					<div class="wrap d-md-flex">
 						<div class="text-wrap p-4 p-lg-5 text-center d-flex align-items-center order-md-last">
 							<div class="text w-100">
-                                <video controls crossorigin playsinline poster="https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-HD.jpg" style="width:100%; visibility: hidden" id="video">
-                                    <source src="https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-576p.mp4" id="video-player">
+                                <video controls crossorigin playsinline poster="" style="width:100%; visibility: hidden" id="video">
+                                    <source src="" id="video-player">
                                     <!-- Fallback for browsers that don't support the <video> element -->
                                     <a href="" id="VideoDownload" download>Download</a>
                                 </video>
@@ -158,7 +158,7 @@
         function PlayVideo() {
             // make the video div visible
             Video.style.visibility = 'visible'
-            VideoPlayer.href= window.location + "&play=true"
+            VideoPlayer.src = window.location + "&play=true"
         }
 
 

@@ -8,12 +8,8 @@ package main
 
 import (
     "fmt"
-    "net"
-    "os"
-    "time"
-
-    "github.com/Akilan1999/p2p-rendering-computation/p2p/frp"
     "github.com/PeernetOfficial/core"
+    "os"
 )
 
 const configFile = "Config.yaml"
@@ -39,6 +35,9 @@ var config struct {
 func main() {
     userAgent := appName + "/" + core.Version
 
+    // change Config to point to /html by default
+    config.WebFiles = "html/"
+    
     backend, status, err := core.Init(userAgent, configFile, nil, &config)
 
     if status != core.ExitSuccess {
@@ -70,32 +69,4 @@ func main() {
     }
 
     select {}
-}
-
-func EscapeNATWebGateway() (ExposePortP2PRC string, err error) {
-    host, port, err := net.SplitHostPort(config.P2PRCRootPeer)
-    if err != nil {
-        return
-    }
-
-    serverPort, err := frp.GetFRPServerPort("http://" + host + ":" + port)
-
-    if err != nil {
-        return
-    }
-
-    time.Sleep(1 * time.Second)
-
-    _, port, err = net.SplitHostPort(config.WebListen[0])
-    if err != nil {
-        return
-    }
-
-    //port for the barrierKVM server
-    ExposePortP2PRC, err = frp.StartFRPClientForServer(host, serverPort, port, config.ExposePortP2PRC)
-    if err != nil {
-        return
-    }
-
-    return
 }
